@@ -29,19 +29,32 @@ fs.readdir(downloadDir, function (err, files) {
       const fileBuffer = fs.readFileSync(fileName);
       const fileEncoding = detectCharacterEncoding(fileBuffer);
 
+      let index = 0;
+
       fs.createReadStream(fileName, encodingTable[fileEncoding])
         .pipe(parse())
-        .on('data', node => {
+        .on('data', (node) => {
           if (node.type === 'cue') {
             const elem = node.data;
-            const text = elem.text.trim().replace(/\n/, "");
+            const text = elem.text.replace(/\n/g, " ");
+            index++;
 
-            if (text) subtitleText += `${text} `;
+            if (text) {
+              if (index % 40) {
+                console.log(index, "-----");
+                subtitleText += `${text} `;
+
+              } else {
+                console.log(index, "line break");
+                subtitleText += `${text}\n`;
+              }
+            }
+
           }
         })
         .on('finish', () => {
-          fs.writeFileSync(`${downloadDir}/new-subtitle-text.txt`, subtitleText);
-          console.log("subtitleText", subtitleText);
+          const foramttedText = subtitleText.replace(/\s\s/g, " ");
+          fs.writeFileSync(`${downloadDir}/new-subtitle-text.txt`, foramttedText);
         });
     } else {
       console.log("Conversion failed. Make sure you are in the Downloads folder and there is no more than one srt file present!");
