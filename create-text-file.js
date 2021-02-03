@@ -22,6 +22,7 @@ fs.readdir(downloadDir, function (err, files) {
 
     if (srtFiles && srtFiles.length === 1) {
       const fileName = path.join(downloadDir, srtFiles[0]);
+      const outputFileName = fileName.replace(/srt$/, "txt");
 
       // Encoding
       const fileBuffer = fs.readFileSync(fileName);
@@ -35,7 +36,7 @@ fs.readdir(downloadDir, function (err, files) {
         .on('data', (node) => {
           if (node.type === 'cue') {
             const elem = node.data;
-            const text = elem.text.replace(/\n/g, " ");
+            const text = elem.text.replace(/\<.*\>/g, "").replace(/\n/g, " ");
             index++;
 
             if (text) {
@@ -49,15 +50,12 @@ fs.readdir(downloadDir, function (err, files) {
           }
         })
         .on('finish', () => {
-          fs.writeFileSync(`${downloadDir}/new-subtitle-text.txt`, foramttedText);
+          const foramttedText = subtitleText.replace(/\s\s/g, " ");
+          fs.writeFileSync(outputFileName, foramttedText);
         });
     } else {
       console.log("Conversion failed. Make sure you are in the Downloads folder and there is no more than one srt file present!");
     }
   }
 });
-
-setTimeout(() => {
-
-}, 2000);
 
