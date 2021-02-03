@@ -1,10 +1,8 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { parse, map, filter } from 'subtitle';
+import { parse } from 'subtitle';
 import detectCharacterEncoding from 'detect-character-encoding';
-
-let subtitleText = "";
 
 const encodingTable = {
   "ISO-8859-1": "latin1",
@@ -29,6 +27,7 @@ fs.readdir(downloadDir, function (err, files) {
       const fileBuffer = fs.readFileSync(fileName);
       const fileEncoding = detectCharacterEncoding(fileBuffer);
 
+      let subtitleText = "";
       let index = 0;
 
       fs.createReadStream(fileName, encodingTable[fileEncoding])
@@ -41,19 +40,15 @@ fs.readdir(downloadDir, function (err, files) {
 
             if (text) {
               if (index % 40) {
-                console.log(index, "-----");
                 subtitleText += `${text} `;
 
               } else {
-                console.log(index, "line break");
                 subtitleText += `${text}\n`;
               }
             }
-
           }
         })
         .on('finish', () => {
-          const foramttedText = subtitleText.replace(/\s\s/g, " ");
           fs.writeFileSync(`${downloadDir}/new-subtitle-text.txt`, foramttedText);
         });
     } else {
