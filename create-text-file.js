@@ -36,11 +36,11 @@ fs.readdir(downloadDir, function (err, files) {
         .on('data', (node) => {
           if (node.type === 'cue') {
             const elem = node.data;
-            const text = elem.text.replace(/\<.*\>/g, "").replace(/\n/g, " ");
+            const text = elem.text.replace(/\<\/*.*?\>/g, "").replace(/\n/g, " ");
             index++;
 
             if (text) {
-              if (index % 40) {
+              if (index % 20) {
                 subtitleText += `${text} `;
 
               } else {
