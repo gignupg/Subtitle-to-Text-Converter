@@ -39,7 +39,8 @@ fs.readdir(downloadDir, function (err, files) {
       fs.createReadStream(fileName, encodingTable[fileEncoding.encoding])
         .pipe(parse())
         .on('data', (node) => {
-          if (node.type === 'cue') {////
+          if (node.type === 'cue') {
+            const elem = node.data;
             const text = elem.text.replace(/\<\/*.*?\>/g, "").replace(/\n/g, " ");
             index++;
 
