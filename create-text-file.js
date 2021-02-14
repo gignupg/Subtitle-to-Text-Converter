@@ -28,14 +28,18 @@ fs.readdir(downloadDir, function (err, files) {
       const fileBuffer = fs.readFileSync(fileName);
       const fileEncoding = detectCharacterEncoding(fileBuffer);
 
+      if (!encodingTable[fileEncoding.encoding]) {
+        console.log("Unknown file encoding!");
+        return null;
+      }
+
       let subtitleText = "";
       let index = 0;
 
-      fs.createReadStream(fileName, encodingTable[fileEncoding])
+      fs.createReadStream(fileName, encodingTable[fileEncoding.encoding])
         .pipe(parse())
         .on('data', (node) => {
-          if (node.type === 'cue') {
-            const elem = node.data;
+          if (node.type === 'cue') {////
             const text = elem.text.replace(/\<\/*.*?\>/g, "").replace(/\n/g, " ");
             index++;
 
@@ -58,4 +62,3 @@ fs.readdir(downloadDir, function (err, files) {
     }
   }
 });
-
