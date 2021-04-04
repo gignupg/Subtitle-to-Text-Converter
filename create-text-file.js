@@ -18,11 +18,15 @@ fs.readdir(downloadDir, function (err, files) {
     console.log("File cannot be properly processed for the following reason:", err);
 
   } else {
-    const srtFiles = files.filter(el => path.extname(el).toLowerCase() === ".srt");
+    const srtFiles = files.filter(el => {
+      const fileExtension = path.extname(el).toLowerCase();
+      if (fileExtension === ".srt" || fileExtension === ".vtt") return true;
+      return false;
+    });
 
     if (srtFiles && srtFiles.length === 1) {
       const fileName = path.join(downloadDir, srtFiles[0]);
-      const outputFileName = fileName.replace(/srt$/, "txt");
+      const outputFileName = fileName.replace(/srt$|vtt$/, "txt");
 
       // Encoding
       const fileBuffer = fs.readFileSync(fileName);
@@ -41,7 +45,7 @@ fs.readdir(downloadDir, function (err, files) {
         .on('data', (node) => {
           if (node.type === 'cue') {
             const elem = node.data;
-            const text = elem.text.replace(/\<\/*.*?\>/g, "").replace(/\n/g, " ");
+            const text = elem.text.replace(/\<\/*.*?\>/g, "").replace(/\n/g, " ").replace(/\&nbsp\;/g, "").replace(/\&amp\;/g, "\&");
             index++;
 
             if (text) {
